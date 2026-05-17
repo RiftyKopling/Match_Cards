@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.swing.*;
+import view.HistoriView;
 /**
  *
  * @author HP
@@ -128,9 +129,9 @@ public class GameController {
                 + "Error: " + model.errorCount + "\n"
                 + "Durasi: " + durasi + " detik\n";
 
+        // PERUBAHAN: Menghapus panggilan getTotalHistory()
         if (berhasil) {
-            int total = historyDAO.getTotalHistory();
-            pesan += "\n✓ History tersimpan di database!\nTotal history: " + total;
+            pesan += "\n✓ History tersimpan di database!";
         } else {
             pesan += "\n✗ Gagal menyimpan ke database.";
         }
@@ -185,6 +186,6 @@ public class GameController {
      * Buka window History
      */
     void bukaHistory() {
-        new HistoryView(historyDAO).setVisible(true);
+        new HistoriView().setVisible(true);
     }
 }

@@ -22,6 +22,29 @@ public class GameHistory {
         this.errorCount = errorCount;
         this.durasiDetik = durasiDetik;
     }
+    public int getId(){
+        return this.id;
+    }
+    
+    public String getNama(){
+        return this.nama;
+    }
+    
+    public String getTanggal(){
+        return this.tanggal;
+    }
+    
+    public int getError(){
+        return this.errorCount;
+    }
+    
+    public Long getDurasi(){
+        return this.durasiDetik;
+    }
+    
+    public void setNama(String nama){
+        this.nama = nama;
+    }
 
     public String getDurasiFormat() {
         long menit = durasiDetik / 60;
