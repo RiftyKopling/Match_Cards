@@ -23,6 +23,16 @@ public class GameModel {
 
     public int errorCount = 0;
     public boolean gameReady = false;
+    
+    public long waktuMulai = 0;
+
+    public void mulaiTimer() {
+        waktuMulai = System.currentTimeMillis();
+    }
+
+    public long getDurasiDetik() {
+        return (System.currentTimeMillis() - waktuMulai) / 1000;
+    }
 
     public GameModel() {
         setupCards();

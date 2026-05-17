@@ -3,9 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package controller;
-import model.GameModel;
+import model.*;
 import view.GameView;
 import java.awt.event.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.swing.*;
 /**
  *
@@ -14,15 +16,18 @@ import javax.swing.*;
 public class GameController {
     GameModel model;
     GameView view;
+    public HistoryModel historyModel;
 
     JButton card1Selected;
     JButton card2Selected;
+    int kartuTerbuka = 0; // menghitung berapa pasang kartu sudah terbuka
 
     Timer hideCardTimer;
 
-    public GameController(GameModel model, GameView view) {
+    public GameController(GameModel model, GameView view, HistoryModel historyModel) {
         this.model = model;
         this.view = view;
+        this.historyModel = historyModel;
 
         // Timer untuk menyembunyikan kartu yang tidak cocok setelah 1.5 detik
         hideCardTimer = new Timer(1500, new ActionListener() {
@@ -83,10 +88,40 @@ public class GameController {
                         // Cocok: reset pilihan, kartu tetap terbuka
                         card1Selected = null;
                         card2Selected = null;
+                        kartuTerbuka++;
+
+                        // Cek apakah semua pasang kartu sudah terbuka (game selesai)
+                        // Total pasang = jumlah kartu dibagi 2
+                        if (kartuTerbuka == model.cardSet.size() / 2) {
+                            gameSelesai();
+                        }
                     }
                 }
             }
         }
+    }
+
+    // Dipanggil saat semua kartu berhasil dipasangkan
+    void gameSelesai() {
+        model.gameReady = false;
+
+        // Ambil tanggal dan durasi sekarang
+        String tanggal = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+        long durasi = model.getDurasiDetik();
+
+        // Simpan ke histori (CREATE)
+        historyModel.tambahHistori(tanggal, model.errorCount, durasi);
+
+        // Tampilkan pesan selamat
+        JOptionPane.showMessageDialog(
+                view.frame,
+                "Selamat! Kamu menang!\n"
+                + "Error: " + model.errorCount + "\n"
+                + "Durasi: " + durasi + " detik\n\n"
+                + "Total histori tersimpan: " + historyModel.getTotalHistori(),
+                "Game Selesai",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     // Menyembunyikan kartu (dipanggil timer atau saat start/restart)
@@ -101,6 +136,7 @@ public class GameController {
             // Sembunyikan semua kartu (awal game atau restart)
             view.hideAllCards();
             model.gameReady = true;
+            model.mulaiTimer(); // mulai hitung durasi saat game siap
             view.restartButton.setEnabled(true);
         }
     }
@@ -111,6 +147,7 @@ public class GameController {
         view.restartButton.setEnabled(false);
         card1Selected = null;
         card2Selected = null;
+        kartuTerbuka = 0; // reset hitungan kartu terbuka
 
         model.resetGame(); // acak ulang kartu di model
         view.refreshAllCards(); // tampilkan kartu baru di view
