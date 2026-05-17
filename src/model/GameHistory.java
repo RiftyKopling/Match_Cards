@@ -10,12 +10,14 @@ package model;
  */
 public class GameHistory {
     public int id;
+    public String nama;
     public String tanggal;
     public int errorCount;
     public long durasiDetik;
 
-    public GameHistory(int id, String tanggal, int errorCount, long durasiDetik) {
+    public GameHistory(int id, String nama, String tanggal, int errorCount, long durasiDetik) {
         this.id = id;
+        this.nama = nama;
         this.tanggal = tanggal;
         this.errorCount = errorCount;
         this.durasiDetik = durasiDetik;
@@ -28,7 +30,8 @@ public class GameHistory {
     }
 
     public String toString() {
-        return "ID:" + id + " | " + tanggal + " | Errors:" + errorCount + " | Durasi:" + getDurasiFormat();
+        return "ID:" + id + " | " + nama + " | " + tanggal
+                + " | Errors:" + errorCount + " | Durasi:" + getDurasiFormat();
     }
 }
 

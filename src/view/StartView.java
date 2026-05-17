@@ -4,6 +4,10 @@
  */
 package view;
 
+import controller.GameController;
+import javax.swing.JOptionPane;
+import model.GameModel;
+
 /**
  *
  * @author HP
@@ -84,13 +88,24 @@ public class StartView extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        String username = jTextField1.getText();
+        String nama = jTextField1.getText().trim();
 
-        controller.AuthController auth = new controller.AuthController();
-        if (auth.login(username, password)) {
-            new MainFrame().setVisible(true); // Buka menu utama
-            this.dispose(); // Tutup halaman login
+        // Validasi nama tidak boleh kosong
+        if (nama.isEmpty()) {
+            JOptionPane.showMessageDialog(this,"Nama tidak boleh kosong!","Peringatan",JOptionPane.WARNING_MESSAGE);
+            jTextField1.requestFocus();
+            return;
         }
+
+        // Buat game baru dengan nama pemain
+        GameModel model = new GameModel();
+        model.namaPemain = nama;
+
+        GameView view = new GameView(model);
+        GameController controller = new GameController(model, view);
+
+        // Tutup window start
+        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

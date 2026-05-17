@@ -16,11 +16,13 @@ public class GameView {
 
     // Komponen UI
     public JFrame frame = new JFrame("Poker Match Cards");
+    public JLabel namaLabel = new JLabel();
     public JLabel textLabel = new JLabel();
-    public JPanel textPanel = new JPanel();
+    public JPanel topPanel = new JPanel();
     public JPanel boardPanel = new JPanel();
-    public JPanel restartPanel = new JPanel();
+    public JPanel bottomPanel = new JPanel();
     public JButton restartButton = new JButton("Restart");
+    public JButton historyButton = new JButton("Lihat History");
 
     public ArrayList<JButton> board = new ArrayList<JButton>();
 
@@ -34,15 +36,17 @@ public class GameView {
         boardHeight = model.rows * model.cardHeight;
 
         setupFrame();
-        setupErrorLabel();
+        setupTopPanel();
         setupBoard();
-        setupRestartButton();
+        setupBottomPanel();
 
         frame.pack();
         frame.setVisible(true);
     }
 
-    // Membuat jendela utama
+    /**
+     * Membuat jendela utama
+     */
     void setupFrame() {
         frame.setLayout(new BorderLayout());
         frame.setSize(boardWidth, boardHeight);
@@ -51,17 +55,31 @@ public class GameView {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    // Membuat label error di atas
-    void setupErrorLabel() {
-        textLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+    /**
+     * Membuat panel atas (nama pemain + error)
+     */
+    void setupTopPanel() {
+        topPanel.setLayout(new GridLayout(2, 1));
+        topPanel.setPreferredSize(new Dimension(boardWidth, 60));
+
+        // Label nama pemain
+        namaLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        namaLabel.setHorizontalAlignment(JLabel.CENTER);
+        namaLabel.setText("Pemain: " + model.namaPemain);
+
+        // Label error
+        textLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         textLabel.setHorizontalAlignment(JLabel.CENTER);
-        textLabel.setText("Errors : 0");
-        textPanel.setPreferredSize(new Dimension(boardWidth, 30));
-        textPanel.add(textLabel);
-        frame.add(textPanel, BorderLayout.NORTH);
+        textLabel.setText("Errors: 0");
+
+        topPanel.add(namaLabel);
+        topPanel.add(textLabel);
+        frame.add(topPanel, BorderLayout.NORTH);
     }
 
-    // Membuat papan kartu
+    /**
+     * Membuat papan kartu
+     */
     void setupBoard() {
         boardPanel.setLayout(new GridLayout(model.rows, model.columns));
 
@@ -69,7 +87,7 @@ public class GameView {
             JButton tile = new JButton();
             tile.setPreferredSize(new Dimension(model.cardWidth, model.cardHeight));
             tile.setOpaque(true);
-            tile.setIcon(model.cardSet.get(i).cardImageIcon); // tampilkan gambar kartu
+            tile.setIcon(model.cardSet.get(i).cardImageIcon);
             tile.setFocusable(false);
             board.add(tile);
             boardPanel.add(tile);
@@ -78,29 +96,47 @@ public class GameView {
         frame.add(boardPanel);
     }
 
-    // Membuat tombol restart di bawah
-    void setupRestartButton() {
+    /**
+     * Membuat panel bawah (tombol restart + history)
+     */
+    void setupBottomPanel() {
+        bottomPanel.setLayout(new GridLayout(1, 2, 10, 0));
+        bottomPanel.setPreferredSize(new Dimension(boardWidth, 40));
+
+        // Tombol Restart
         restartButton.setFont(new Font("Arial", Font.PLAIN, 16));
-        restartButton.setPreferredSize(new Dimension(boardWidth, 30));
         restartButton.setFocusable(false);
         restartButton.setEnabled(false);
-        restartPanel.add(restartButton);
-        frame.add(restartPanel, BorderLayout.SOUTH);
+
+        // Tombol History
+        historyButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        historyButton.setFocusable(false);
+        historyButton.setEnabled(false);
+
+        bottomPanel.add(restartButton);
+        bottomPanel.add(historyButton);
+        frame.add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Update tampilan error
+    /**
+     * Update tampilan error
+     */
     public void updateErrorText(int errorCount) {
-        textLabel.setText("Errors : " + errorCount);
+        textLabel.setText("Errors: " + errorCount);
     }
 
-    // Sembunyikan semua kartu (balik ke belakang)
+    /**
+     * Sembunyikan semua kartu (balik ke belakang)
+     */
     public void hideAllCards() {
         for (int i = 0; i < board.size(); i++) {
             board.get(i).setIcon(model.cardBackImageIcon);
         }
     }
 
-    // Refresh tampilan semua kartu sesuai data model (untuk restart)
+    /**
+     * Refresh tampilan semua kartu sesuai data model (untuk restart)
+     */
     public void refreshAllCards() {
         for (int i = 0; i < board.size(); i++) {
             board.get(i).setIcon(model.cardSet.get(i).cardImageIcon);

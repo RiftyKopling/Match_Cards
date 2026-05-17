@@ -25,6 +25,8 @@ public class GameModel {
     public boolean gameReady = false;
     
     public long waktuMulai = 0;
+    
+    public String namaPemain = "";
 
     public void mulaiTimer() {
         waktuMulai = System.currentTimeMillis();
