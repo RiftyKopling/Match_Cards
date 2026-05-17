@@ -7,6 +7,7 @@ package App;
 import controller.GameController;
 import model.*;
 import view.GameView;
+import view.StartView;
 
 /**
  *
@@ -15,9 +16,6 @@ import view.GameView;
 public class Main {
      public static void main(String[] args) {
         GameModel model = new GameModel();       // 1. Buat data
-        GameView view = new GameView(model);     // 2. Buat tampilan
-        HistoryModel historyModel = new HistoryModel();
-        GameController controller = new GameController(model, view, historyModel); // 3. Hubungkan keduanya
-        
+         new StartView().setVisible(true);
     }
 }

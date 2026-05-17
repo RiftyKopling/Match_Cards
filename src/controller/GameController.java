@@ -16,7 +16,7 @@ import javax.swing.*;
 public class GameController {
     GameModel model;
     GameView view;
-    public HistoryModel historyModel;
+    HistoryDAO historyDAO;
 
     JButton card1Selected;
     JButton card2Selected;
@@ -24,10 +24,10 @@ public class GameController {
 
     Timer hideCardTimer;
 
-    public GameController(GameModel model, GameView view, HistoryModel historyModel) {
+    public GameController(GameModel model, GameView view) {
         this.model = model;
         this.view = view;
-        this.historyModel = historyModel;
+        this.historyDAO = new HistoryDAO();
 
         // Timer untuk menyembunyikan kartu yang tidak cocok setelah 1.5 detik
         hideCardTimer = new Timer(1500, new ActionListener() {
@@ -49,11 +49,20 @@ public class GameController {
             }
         });
 
+        // Pasang listener ke tombol history
+        view.historyButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                bukaHistory();
+            }
+        });
+
         // Mulai game: tampilkan kartu sebentar lalu sembunyikan
         hideCardTimer.start();
     }
 
-    // Logika saat kartu diklik
+    /**
+     * Logika saat kartu diklik
+     */
     class CardClickListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -91,7 +100,6 @@ public class GameController {
                         kartuTerbuka++;
 
                         // Cek apakah semua pasang kartu sudah terbuka (game selesai)
-                        // Total pasang = jumlah kartu dibagi 2
                         if (kartuTerbuka == model.cardSet.size() / 2) {
                             gameSelesai();
                         }
@@ -101,30 +109,43 @@ public class GameController {
         }
     }
 
-    // Dipanggil saat semua kartu berhasil dipasangkan
+    /**
+     * Dipanggil saat semua kartu berhasil dipasangkan
+     */
     void gameSelesai() {
         model.gameReady = false;
 
-        // Ambil tanggal dan durasi sekarang
+        // Ambil data permainan
         String tanggal = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
         long durasi = model.getDurasiDetik();
+        String nama = model.namaPemain;
 
-        // Simpan ke histori (CREATE)
-        historyModel.tambahHistori(tanggal, model.errorCount, durasi);
+        // Simpan ke database
+        boolean berhasil = historyDAO.tambahHistory(nama, tanggal, model.errorCount, durasi);
 
         // Tampilkan pesan selamat
+        String pesan = "Selamat " + nama + "! Kamu menang!\n\n"
+                + "Error: " + model.errorCount + "\n"
+                + "Durasi: " + durasi + " detik\n";
+
+        if (berhasil) {
+            int total = historyDAO.getTotalHistory();
+            pesan += "\n✓ History tersimpan di database!\nTotal history: " + total;
+        } else {
+            pesan += "\n✗ Gagal menyimpan ke database.";
+        }
+
         JOptionPane.showMessageDialog(
                 view.frame,
-                "Selamat! Kamu menang!\n"
-                + "Error: " + model.errorCount + "\n"
-                + "Durasi: " + durasi + " detik\n\n"
-                + "Total histori tersimpan: " + historyModel.getTotalHistori(),
+                pesan,
                 "Game Selesai",
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
 
-    // Menyembunyikan kartu (dipanggil timer atau saat start/restart)
+    /**
+     * Menyembunyikan kartu (dipanggil timer atau saat start/restart)
+     */
     void hideCards() {
         if (model.gameReady && card1Selected != null && card2Selected != null) {
             // Sembunyikan dua kartu yang tidak cocok
@@ -138,21 +159,32 @@ public class GameController {
             model.gameReady = true;
             model.mulaiTimer(); // mulai hitung durasi saat game siap
             view.restartButton.setEnabled(true);
+            view.historyButton.setEnabled(true);
         }
     }
 
-    // Reset permainan dari awal
+    /**
+     * Reset permainan dari awal
+     */
     void restartGame() {
         model.gameReady = false;
         view.restartButton.setEnabled(false);
+        view.historyButton.setEnabled(false);
         card1Selected = null;
         card2Selected = null;
-        kartuTerbuka = 0; // reset hitungan kartu terbuka
+        kartuTerbuka = 0;
 
         model.resetGame(); // acak ulang kartu di model
         view.refreshAllCards(); // tampilkan kartu baru di view
 
         view.updateErrorText(0);
         hideCardTimer.start(); // tampilkan sebentar lalu sembunyikan
+    }
+
+    /**
+     * Buka window History
+     */
+    void bukaHistory() {
+        new HistoryView(historyDAO).setVisible(true);
     }
 }
