@@ -7,9 +7,8 @@ package view;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import model.GameHistory;
-import model.HistoryDAO;
-
+import model.*;
+import controller.*;
 /**
  *
  * @author HP
@@ -20,13 +19,13 @@ public class HistoriView extends javax.swing.JFrame {
      * Creates new form HistoriView
      */
     private HistoryDAO historyDAO;
+    
 
     public HistoriView() {
         this.historyDAO = new HistoryDAO();
         initComponents();
         loadData();
-        setLocationRelativeTo(null);
-
+        this.setLocationRelativeTo(null);
         // PENTING: Gunakan DISPOSE_ON_CLOSE agar saat jendela history disilang, 
         // jendela game utama tidak ikut tertutup.
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -108,6 +107,11 @@ public class HistoriView extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tabelHistory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabelHistoryMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tabelHistory);
         if (tabelHistory.getColumnModel().getColumnCount() > 0) {
             tabelHistory.getColumnModel().getColumn(0).setResizable(false);
@@ -134,6 +138,11 @@ public class HistoriView extends javax.swing.JFrame {
         });
 
         jButton4.setText("DELETE");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -217,6 +226,31 @@ public class HistoriView extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Nama berhasil diupdate!");
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void tabelHistoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelHistoryMouseClicked
+        // TODO add your handling code here:
+        int baris = tabelHistory.getSelectedRow();
+
+        // ambil data untuk kolom
+        String id = tabelHistory.getValueAt(baris, 0).toString();
+        String nama = tabelHistory.getValueAt(baris, 1).toString();
+
+        jTextField1.setText(id);
+        jTextField2.setText(nama);
+    }//GEN-LAST:event_tabelHistoryMouseClicked
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        int row = tabelHistory.getSelectedRow();
+        if (row == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Pilih data dulu!");
+            return;
+        }
+
+        int id = (int) tabelHistory.getValueAt(row, 0);
+        historyDAO.deleteHistory(id);
+        loadData();
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments

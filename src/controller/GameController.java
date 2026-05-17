@@ -50,13 +50,6 @@ public class GameController {
             }
         });
 
-        // Pasang listener ke tombol history
-        view.historyButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                bukaHistory();
-            }
-        });
-
         // Mulai game: tampilkan kartu sebentar lalu sembunyikan
         hideCardTimer.start();
     }
@@ -142,6 +135,7 @@ public class GameController {
                 "Game Selesai",
                 JOptionPane.INFORMATION_MESSAGE
         );
+        new view.HistoriView().setVisible(true);
     }
 
     /**
@@ -180,12 +174,5 @@ public class GameController {
 
         view.updateErrorText(0);
         hideCardTimer.start(); // tampilkan sebentar lalu sembunyikan
-    }
-
-    /**
-     * Buka window History
-     */
-    void bukaHistory() {
-        new HistoriView().setVisible(true);
     }
 }

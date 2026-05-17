@@ -20,7 +20,7 @@ public class HistoryDAO {
             Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
 
-            String sql = "INSERT INTO game_history (nama, tanggal, error_count, durasi_detik) "
+            String sql = "INSERT INTO histori (nama, tanggal, error_count, durasi_detik) "
                     + "VALUES ('" + nama + "', '" + tanggal + "', " + errorCount + ", " + durasiDetik + ")";
 
             int result = stmt.executeUpdate(sql);
@@ -38,7 +38,7 @@ public class HistoryDAO {
             Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
 
-            String sql = "UPDATE game_history SET nama='" + nama + "', tanggal='" + tanggal + "', "
+            String sql = "UPDATE histori SET nama='" + nama + "', tanggal='" + tanggal + "', "
                     + "error_count=" + errorCount + ", durasi_detik=" + durasiDetik + " WHERE id=" + id;
 
             int result = stmt.executeUpdate(sql);
@@ -56,7 +56,7 @@ public class HistoryDAO {
             Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
 
-            String sql = "DELETE FROM game_history WHERE id=" + id;
+            String sql = "DELETE FROM histori WHERE id=" + id;
 
             int result = stmt.executeUpdate(sql);
             return result > 0;
@@ -74,7 +74,7 @@ public class HistoryDAO {
             Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
 
-            String sql = "SELECT * FROM game_history ORDER BY id DESC";
+            String sql = "SELECT * FROM histori ORDER BY error_count ASC, durasi_detik ASC";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
