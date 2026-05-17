@@ -4,6 +4,11 @@
  */
 package view;
 
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.*;
+import controller.*;
 /**
  *
  * @author HP
@@ -13,10 +18,44 @@ public class HistoriView extends javax.swing.JFrame {
     /**
      * Creates new form HistoriView
      */
+    private HistoryDAO historyDAO;
+    
+
     public HistoriView() {
+        this.historyDAO = new HistoryDAO();
         initComponents();
+        loadData();
+        this.setLocationRelativeTo(null);
+        // PENTING: Gunakan DISPOSE_ON_CLOSE agar saat jendela history disilang, 
+        // jendela game utama tidak ikut tertutup.
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     }
 
+    void loadData() {
+        try {
+            DefaultTableModel model = (DefaultTableModel) tabelHistory.getModel();
+            model.setRowCount(0);
+
+            // Mengambil data dari ArrayList DAO
+            ArrayList<GameHistory> list = historyDAO.getAllHistory();
+
+            for (GameHistory h : list) {
+                model.addRow(new Object[]{
+                    h.getId(),
+                    h.getNama(),
+                    h.getTanggal(),
+                    h.getError(),
+                    h.getDurasi()
+                });
+            }
+
+            System.out.println("Data history berhasil dimuat!");
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -31,7 +70,7 @@ public class HistoriView extends javax.swing.JFrame {
         jTextField3 = new javax.swing.JTextField();
         textField1 = new java.awt.TextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tabelHistory = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -49,7 +88,7 @@ public class HistoriView extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tabelHistory.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -68,18 +107,23 @@ public class HistoriView extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setResizable(false);
-            jTable1.getColumnModel().getColumn(0).setPreferredWidth(20);
-            jTable1.getColumnModel().getColumn(1).setResizable(false);
-            jTable1.getColumnModel().getColumn(1).setPreferredWidth(60);
-            jTable1.getColumnModel().getColumn(2).setResizable(false);
-            jTable1.getColumnModel().getColumn(2).setPreferredWidth(60);
-            jTable1.getColumnModel().getColumn(3).setResizable(false);
-            jTable1.getColumnModel().getColumn(3).setPreferredWidth(60);
-            jTable1.getColumnModel().getColumn(4).setResizable(false);
-            jTable1.getColumnModel().getColumn(4).setPreferredWidth(60);
+        tabelHistory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabelHistoryMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tabelHistory);
+        if (tabelHistory.getColumnModel().getColumnCount() > 0) {
+            tabelHistory.getColumnModel().getColumn(0).setResizable(false);
+            tabelHistory.getColumnModel().getColumn(0).setPreferredWidth(20);
+            tabelHistory.getColumnModel().getColumn(1).setResizable(false);
+            tabelHistory.getColumnModel().getColumn(1).setPreferredWidth(60);
+            tabelHistory.getColumnModel().getColumn(2).setResizable(false);
+            tabelHistory.getColumnModel().getColumn(2).setPreferredWidth(60);
+            tabelHistory.getColumnModel().getColumn(3).setResizable(false);
+            tabelHistory.getColumnModel().getColumn(3).setPreferredWidth(60);
+            tabelHistory.getColumnModel().getColumn(4).setResizable(false);
+            tabelHistory.getColumnModel().getColumn(4).setPreferredWidth(60);
         }
 
         jLabel1.setText("ID : ");
@@ -87,8 +131,18 @@ public class HistoriView extends javax.swing.JFrame {
         jLabel2.setText("Nama : ");
 
         jButton1.setText("EDIT");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("DELETE");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -139,6 +193,65 @@ public class HistoriView extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        int row = tabelHistory.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih data di tabel terlebih dahulu!");
+            return;
+        }
+
+        // 1. Ambil semua data lama dari baris yang dipilih
+        int id = (int) tabelHistory.getValueAt(row, 0);
+        String namaLama = tabelHistory.getValueAt(row, 1).toString();
+        String tanggalLama = tabelHistory.getValueAt(row, 2).toString();
+        int errorLama = Integer.parseInt(tabelHistory.getValueAt(row, 3).toString());
+        long durasiLama = Long.parseLong(tabelHistory.getValueAt(row, 4).toString());
+
+        // 2. CARA PALING SIMPLE: Munculkan popup input khusus untuk teks
+        String namaBaru = JOptionPane.showInputDialog(this, "Masukkan Nama Baru:", namaLama);
+
+        // 3. Jika tombol OK ditekan (namaBaru tidak null) dan tidak dikosongkan
+        if (namaBaru != null && !namaBaru.trim().isEmpty()) {
+
+            // Simpan nama baru, sedangkan tanggal, error, dan durasi tetap pakai data lama
+            historyDAO.updateHistory(id, namaBaru, tanggalLama, errorLama, durasiLama);
+
+            loadData(); // Refresh tabel
+
+            // Kosongkan textfield di samping
+            jTextField1.setText("");
+            jTextField2.setText("");
+
+            JOptionPane.showMessageDialog(this, "Nama berhasil diupdate!");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void tabelHistoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelHistoryMouseClicked
+        // TODO add your handling code here:
+        int baris = tabelHistory.getSelectedRow();
+
+        // ambil data untuk kolom
+        String id = tabelHistory.getValueAt(baris, 0).toString();
+        String nama = tabelHistory.getValueAt(baris, 1).toString();
+
+        jTextField1.setText(id);
+        jTextField2.setText(nama);
+    }//GEN-LAST:event_tabelHistoryMouseClicked
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        int row = tabelHistory.getSelectedRow();
+        if (row == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Pilih data dulu!");
+            return;
+        }
+
+        int id = (int) tabelHistory.getValueAt(row, 0);
+        historyDAO.deleteHistory(id);
+        loadData();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -182,10 +295,10 @@ public class HistoriView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JTable tabelHistory;
     private java.awt.TextField textField1;
     // End of variables declaration//GEN-END:variables
 }

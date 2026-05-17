@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.swing.*;
+import view.HistoriView;
 /**
  *
  * @author HP
@@ -46,13 +47,6 @@ public class GameController {
         view.restartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 restartGame();
-            }
-        });
-
-        // Pasang listener ke tombol history
-        view.historyButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                bukaHistory();
             }
         });
 
@@ -128,9 +122,9 @@ public class GameController {
                 + "Error: " + model.errorCount + "\n"
                 + "Durasi: " + durasi + " detik\n";
 
+        // PERUBAHAN: Menghapus panggilan getTotalHistory()
         if (berhasil) {
-            int total = historyDAO.getTotalHistory();
-            pesan += "\n✓ History tersimpan di database!\nTotal history: " + total;
+            pesan += "\n✓ History tersimpan di database!";
         } else {
             pesan += "\n✗ Gagal menyimpan ke database.";
         }
@@ -141,6 +135,7 @@ public class GameController {
                 "Game Selesai",
                 JOptionPane.INFORMATION_MESSAGE
         );
+        new view.HistoriView().setVisible(true);
     }
 
     /**
@@ -179,12 +174,5 @@ public class GameController {
 
         view.updateErrorText(0);
         hideCardTimer.start(); // tampilkan sebentar lalu sembunyikan
-    }
-
-    /**
-     * Buka window History
-     */
-    void bukaHistory() {
-        new HistoryView(historyDAO).setVisible(true);
     }
 }

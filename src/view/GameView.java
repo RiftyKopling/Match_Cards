@@ -100,7 +100,7 @@ public class GameView {
      * Membuat panel bawah (tombol restart + history)
      */
     void setupBottomPanel() {
-        bottomPanel.setLayout(new GridLayout(1, 2, 10, 0));
+        bottomPanel.setLayout(new GridLayout(1, 1, 10, 0));
         bottomPanel.setPreferredSize(new Dimension(boardWidth, 40));
 
         // Tombol Restart
@@ -108,13 +108,7 @@ public class GameView {
         restartButton.setFocusable(false);
         restartButton.setEnabled(false);
 
-        // Tombol History
-        historyButton.setFont(new Font("Arial", Font.PLAIN, 16));
-        historyButton.setFocusable(false);
-        historyButton.setEnabled(false);
-
         bottomPanel.add(restartButton);
-        bottomPanel.add(historyButton);
         frame.add(bottomPanel, BorderLayout.SOUTH);
     }
 
